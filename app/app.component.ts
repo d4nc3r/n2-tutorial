@@ -1,12 +1,11 @@
-import {Component} from 'angular2/core';
-
-interface Hero {
-  id: number;
-  name: string;
-}
+import {Component, OnInit} from 'angular2/core';
+import {HeroDetailComponent} from './hero-detail.component';
+import {Hero} from './hero';
+import {HeroService} from './hero.service';
 
 @Component({
     selector: 'my-app',
+    directives: [HeroDetailComponent],
     template: `
       <h1>{{title}}</h1>
       <h2>My Heroes</h2>
@@ -17,17 +16,7 @@ interface Hero {
           <span class="badge">{{hero.id}}</span> {{hero.name}}
         </li>
       </ul>
-      <div *ngIf="selectedHero">
-        <h2>{{selectedHero.name}} details</h2>
-        <div>
-          <label>id: </label>
-          {{selectedHero.id}}
-        </div>
-        <div>
-          <label>name: </label>
-          <input [(ngModel)]="selectedHero.name" placeholder="name">
-        </div>
-      </div>
+      <my-hero-detail [hero]="selectedHero"></my-hero-detail>
     `,
     styles: [`
       .heroes {list-style-type: none; margin-left: 1em; padding: 0; width: 10em;}
@@ -44,28 +33,27 @@ interface Hero {
         top: -1px;
       }
       .selected { background-color: #EEE; color: #369; }
-    `]
+    `],
+    providers: [HeroService]
 })
 
-export class AppComponent {
+export class AppComponent implements OnInit {
   public title = 'Tour of Heroes';
-  public heroes = HEROES;
+  public heroes: Hero[];
   public selectedHero: Hero;
+
+  constructor(private _heroService: HeroService){
+  }
+
+  ngOnInit() {
+    this.getHeroes();
+  }
+
+  getHeroes() {
+    this._heroService.getHeroes().then(heroes => this.heroes = heroes);
+  }
 
   onSelect(hero: Hero) {
     this.selectedHero = hero;
   }
 }
-
-var HEROES: Hero[] = [
-  {id: 11, name: 'Black widow'},
-  {id: 12, name: 'The Hulk'},
-  {id: 13, name: 'Captain America'},
-  {id: 14, name: 'Iron Man'},
-  {id: 15, name: 'Thor'},
-  {id: 16, name: 'Nick Fury'},
-  {id: 17, name: 'Hawkeye'},
-  {id: 18, name: 'Falcon'},
-  {id: 19, name: 'Maria Hill'},
-  {id: 20, name: 'Vision'},
-]
